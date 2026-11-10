@@ -1,0 +1,25 @@
+import path from 'node:path';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+
+const app = express();
+app.set('trust proxy', 1);
+const origins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',').map((origin) => origin.trim());
+app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(cors({ origin(origin, callback) { if (!origin || origins.includes(origin)) return callback(null, true); return callback(new Error('Origin not allowed by CORS')); }, credentials: true }));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
+app.use('/uploads', express.static(path.resolve('uploads')));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'apple-plus-api' }));
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use(notFound);
+app.use(errorHandler);
+export default app;

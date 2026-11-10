@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/apple-plus
+    volumes:
+      - product-uploads:/app/uploads
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:
+  product-uploads:
