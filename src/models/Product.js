@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, required: true, min: 0, default: 0 },
   tag: { type: String, trim: true, maxlength: 80, default: '' },
   images: { type: [imageSchema], default: [] },
-  isPublished: { type: Boolean, default: false }
+  isPublished: { type: Boolean, default: true }
 }, { timestamps: true });
 
 productSchema.index({ category: 1, isPublished: 1, createdAt: -1 });
